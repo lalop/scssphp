@@ -45,7 +45,7 @@ class InputTest extends TestCase
         chdir(__DIR__);
 
         $this->scss = new Compiler();
-        $this->scss->addImportPath(self::$inputDir);
+        $this->scss->addImportPath('/'.self::$inputDir);
 
         if (getenv('BUILD')) {
             $this->buildInput($inFname, $outFname);
@@ -62,6 +62,34 @@ class InputTest extends TestCase
 
         $this->assertEquals($output, $this->scss->compile($input, substr($inFname, strlen(__DIR__) + 1)));
     }
+
+
+    public function testInputFileNoRoot()
+    {
+        chdir(__DIR__);
+
+        $inFname = '/inputs/imports/relative.scss';
+        $outFname = '/outputs/relative.css';
+
+        $this->scss = new Compiler();
+        $this->scss->addImportPath('/'.self::$inputDir);
+
+        if (getenv('BUILD')) {
+            $this->buildInput($inFname, $outFname);
+            $this->assertNull(null);
+            return;
+        }
+
+        if (! is_readable($outFname)) {
+            $this->fail("$outFname is missing, consider building tests with BUILD=1");
+        }
+
+        $input = file_get_contents($inFname);
+        $output = file_get_contents($outFname);
+
+        $this->assertEquals($output, $this->scss->compile($input, substr($inFname, strlen(__DIR__) + 1)));
+    }
+
 
     /**
      * Run all tests with line numbering
